@@ -3,6 +3,7 @@
 
 import urllib2
 import cookielib
+import socket
 
 def getCommonHeader():
     return {
@@ -22,12 +23,26 @@ def simulateBbtClick(id,account):
     headers['Referer'] = "http://www.battleofballs.com/index_PC.html?id=%s&Account=%s" % (id,account)
     url = "http://cn.battleofballs.com/share?type=1&id=%s" % id
     data = None
-    proxies={"http":"43.241.227.180:8000"}
-    proxy_s=urllib2.ProxyHandler(proxies)
-    opener=urllib2.build_opener(proxy_s)
-    req = urllib2.Request(url, data, headers)
-    response = opener.open(req)
-    print response.read()
+    i = 0
+    proxies = open('proxies.txt','rU')
+    for proxy in proxies.readlines():
+        p = {"http":"%s" % proxy.strip('\n')}
+        print p
+        print i
+        try:
+            proxy_s=urllib2.ProxyHandler(p)
+            opener=urllib2.build_opener(proxy_s)
+            req = urllib2.Request(url, data, headers)
+            response = opener.open(req)
+            result = response.read()
+            print result
+            if result == 'ok':
+                i = i+1
+            if i >= 5:
+                break
+        except Exception,e:
+            continue
+    proxies.close()
 
 def handleUrl(url):
     cookie = cookielib.CookieJar()
@@ -50,7 +65,8 @@ def start():
     file = open('link.txt','r')
     for link in file.readlines():
         handleUrl(link)
+    file.close()
 #url='http://t.cn/RJhm9Mw'
 if __name__=="__main__":
-#        socket.setdefaulttimeout(2)
+    socket.setdefaulttimeout(4)
     start();
