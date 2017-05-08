@@ -18,6 +18,35 @@ def getCommonHeader():
     }
 
 
+def simulateLongDanClick(plainUrl):
+    headers = getCommonHeader();
+    headers['Referer'] = plainUrl
+    decodeData = base64.decodestring(plainUrl.split('?')[1].split('b')[1])
+    print decodeData
+    #url = "http://cn.battleofballs.com/share?type=3&id=%s" % id
+    #data = None
+    #i = 0
+    #proxies = open('proxies.txt','rU')
+    #for proxy in proxies.readlines():
+    #    p = {"http":"%s" % proxy.strip('\n')}
+    #    print i
+    #    try:
+    #        proxy_s=urllib2.ProxyHandler(p)
+    #        opener=urllib2.build_opener(proxy_s)
+    #        req = urllib2.Request(url, data, headers)
+    #        response = opener.open(req)
+    #        result = response.read()
+    #        print result
+    #        if result == 'error':
+    #            break
+    #        if result == 'ok':
+    #            i = i+1
+    #        if i >= 30:
+    #            break
+    #    except Exception,e:
+    #        continue
+    #proxies.close()
+
 def simulateBbtClick(id,account):
     headers = getCommonHeader();
     headers['Referer'] = "http://www.battleofballs.com/index_PC.html?id=%s&Account=%s" % (id,account)
@@ -36,6 +65,8 @@ def simulateBbtClick(id,account):
             response = opener.open(req)
             result = response.read()
             print result
+            if result == 'error':
+                break
             if result == 'ok':
                 i = i+1
             if i >= 5:
@@ -60,6 +91,8 @@ def handleUrl(url):
         print id
         print account
         simulateBbtClick(id,account)
+    if plainUrl.find('b=') <> -1:
+        simulateLongDanClick(plainUrl)
 
 def start():
     file = open('link.txt','r')
