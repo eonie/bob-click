@@ -20,10 +20,11 @@ def parse(data):
     rows = page.xpath('//div[@id="index_free_list"]/table//tr[td]')
     f = open('proxies.txt', 'a')
     for row in rows:
-        print ([i[1]+i[3] for i in row.itertext()])
-       # print proxy.text
-        #f.write(proxy.text)
-        #f.write('\n')
+        #print row.xpath('td[@data-title="IP"]')[0].text+':'+row.xpath('td[@data-title="PORT"]')[0].text
+        ip = row.xpath('td[@data-title="IP"]')[0].text
+        port = row.xpath('td[@data-title="PORT"]')[0].text
+        f.write('%s:%s' % (ip,port))
+        f.write('\n')
 
     f.close()
 url='http://www.kuaidaili.com/proxylist/%s/'

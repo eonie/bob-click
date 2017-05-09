@@ -4,6 +4,8 @@
 import urllib2
 import cookielib
 import socket
+import base64
+
 
 def getCommonHeader():
     return {
@@ -16,36 +18,6 @@ def getCommonHeader():
         "Origin":"http://www.battleofballs.com",
         "User-Agent":"Mozilla/5.0 (Macintosh; Intel Mac OS X 10.12; rv:53.0) Gecko/20100101 Firefox/53.0"
     }
-
-
-def simulateLongDanClick(plainUrl):
-    headers = getCommonHeader();
-    headers['Referer'] = plainUrl
-    decodeData = base64.decodestring(plainUrl.split('?')[1].split('b')[1])
-    print decodeData
-    #url = "http://cn.battleofballs.com/share?type=3&id=%s" % id
-    #data = None
-    #i = 0
-    #proxies = open('proxies.txt','rU')
-    #for proxy in proxies.readlines():
-    #    p = {"http":"%s" % proxy.strip('\n')}
-    #    print i
-    #    try:
-    #        proxy_s=urllib2.ProxyHandler(p)
-    #        opener=urllib2.build_opener(proxy_s)
-    #        req = urllib2.Request(url, data, headers)
-    #        response = opener.open(req)
-    #        result = response.read()
-    #        print result
-    #        if result == 'error':
-    #            break
-    #        if result == 'ok':
-    #            i = i+1
-    #        if i >= 30:
-    #            break
-    #    except Exception,e:
-    #        continue
-    #proxies.close()
 
 def simulateBbtClick(id,account):
     headers = getCommonHeader();
@@ -74,6 +46,40 @@ def simulateBbtClick(id,account):
         except Exception,e:
             continue
     proxies.close()
+def parseParam(str):
+    param = dict()
+    for kv in str.split('&'):
+        param[kv.split('=')[0]] = kv.split('=')[1]
+    return param
+def simulateLongDanClick(plainUrl):
+    print plainUrl
+    headers = getCommonHeader();
+    headers['Referer'] = plainUrl
+    decodeData = base64.b64decode(plainUrl.split('?')[1].split('=')[1])
+    param = parseParam(decodeData)
+    url = "http://cn.battleofballs.com/share?type=3&id=%s" % param['id']
+    data = None
+    #simulateBbtClick(param['id'], param['Account'])
+    i = 0
+    proxies = open('proxies.txt','rU')
+    for proxy in proxies.readlines():
+        p = {"http":"%s" % proxy.strip('\n')}
+        print i
+        try:
+            proxy_s=urllib2.ProxyHandler(p)
+            opener=urllib2.build_opener(proxy_s)
+            req = urllib2.Request(url, data, headers)
+            response = opener.open(req)
+            result = response.read()
+            print result
+            if result == 'ok':
+                i = i+1
+            if i >= 30:
+                break
+        except Exception,e:
+            continue
+    proxies.close()
+
 
 def handleUrl(url):
     cookie = cookielib.CookieJar()
@@ -101,5 +107,5 @@ def start():
     file.close()
 #url='http://t.cn/RJhm9Mw'
 if __name__=="__main__":
-    socket.setdefaulttimeout(4)
+    socket.setdefaulttimeout(15)
     start();
